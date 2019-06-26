@@ -4,7 +4,15 @@ var prompt = require('prompt-lite');
 
 const { execSync } = require('child_process');
 const semver = require('semver');
-const tnsVersionFull = execSync('tns --version', { encoding: 'ascii'});
+// In case the current Node.js version is not supported by CLI, a warning in `tns --version` output is shown.
+// Sample output:
+//
+/*Support for Node.js ^8.0.0 is deprecated and will be removed in one of the next releases of NativeScript. Please, upgrade to the latest Node.js LTS version.
+
+6.0.0
+*/
+// Extract the actual version (6.0.0) from it.
+const tnsVersionFull = (execSync('tns --version', { encoding: 'ascii'}).match(/^(?:\d+\.){2}\d+.*?$/m) || [])[0];
 
 // iOS modern build system is supported from version NativeScript-CLI version 5.2.0
 const supportsIOSModernBuildSystem = tnsVersionFull.indexOf("5.2.0-") > -1 || semver.gte(tnsVersionFull, "5.2.0");
@@ -513,9 +521,10 @@ const string3 = \`
 \`;
 
 module.exports = function($logger, $projectData, hookArgs) {
-  const platform = hookArgs.platform.toLowerCase();
+  const platformFromHookArgs = hookArgs && (hookArgs.platform || (hookArgs.prepareData && hookArgs.prepareData.platform));
+  const platform = (platformFromHookArgs  || '').toLowerCase();
   return new Promise(function(resolve, reject) {
-    const isNativeProjectPrepared = !hookArgs.nativePrepare || !hookArgs.nativePrepare.skipNativePrepare;
+    const isNativeProjectPrepared = hookArgs.prepareData ? (!hookArgs.prepareData.nativePrepare || !hookArgs.prepareData.nativePrepare.skipNativePrepare) : (!hookArgs.nativePrepare || !hookArgs.nativePrepare.skipNativePrepare);
     if (isNativeProjectPrepared) {
       try {
         if (platform === 'ios') {
@@ -621,9 +630,10 @@ function writeBuildscriptHookForFirestore(enable) {
 const path = require('path');
 
 module.exports = function($logger, $projectData, hookArgs) {
-  const platform = hookArgs.platform.toLowerCase();
+  const platformFromHookArgs = hookArgs && (hookArgs.platform || (hookArgs.prepareData && hookArgs.prepareData.platform));
+  const platform = (platformFromHookArgs  || '').toLowerCase();
   return new Promise(function(resolve, reject) {
-    const isNativeProjectPrepared = !hookArgs.nativePrepare || !hookArgs.nativePrepare.skipNativePrepare;
+    const isNativeProjectPrepared = hookArgs.prepareData ? (!hookArgs.prepareData.nativePrepare || !hookArgs.prepareData.nativePrepare.skipNativePrepare) : (!hookArgs.nativePrepare || !hookArgs.nativePrepare.skipNativePrepare);
     if (isNativeProjectPrepared) {
       try {
         if (platform !== 'ios') {
@@ -822,22 +832,24 @@ module.exports = function($logger, $projectData, hookArgs) {
 return new Promise(function(resolve, reject) {
 
         /* Decide whether to prepare for dev or prod environment */
-
-        var isReleaseBuild = (hookArgs.appFilesUpdaterOptions && hookArgs.appFilesUpdaterOptions.release) ? true : false;
+        var isReleaseBuild = (hookArgs.appFilesUpdaterOptions || hookArgs.prepareData).release;
         var validProdEnvs = ['prod','production'];
         var isProdEnv = false; // building with --env.prod or --env.production flag
+        var env = (hookArgs.platformSpecificData || hookArgs.prepareData).env;
 
-        if (hookArgs.platformSpecificData.env) {
-            Object.keys(hookArgs.platformSpecificData.env).forEach((key) => {
+        if (env) {
+            Object.keys(env).forEach((key) => {
                 if (validProdEnvs.indexOf(key)>-1) { isProdEnv=true; }
             });
         }
 
         var buildType = isReleaseBuild || isProdEnv ? 'production' : 'development';
+        const platformFromHookArgs = hookArgs && (hookArgs.platform || (hookArgs.prepareData && hookArgs.prepareData.platform));
+        const platform = (platformFromHookArgs  || '').toLowerCase();
 
         /* Create info file in platforms dir so we can detect changes in environment and force prepare if needed */
 
-        var npfInfoPath = path.join($projectData.platformsDir, hookArgs.platform.toLowerCase(), ".pluginfirebaseinfo");
+        var npfInfoPath = path.join($projectData.platformsDir, platform, ".pluginfirebaseinfo");
         var npfInfo = {
             buildType: buildType,
         };
@@ -850,7 +862,7 @@ return new Promise(function(resolve, reject) {
 
         /* Handle preparing of Google Services files */
 
-        if (hookArgs.platform.toLowerCase() === 'android') {
+        if (platform === 'android') {
             var destinationGoogleJson = path.join($projectData.platformsDir, "android", "app", "google-services.json");
             var destinationGoogleJsonAlt = path.join($projectData.platformsDir, "android", "google-services.json");
             var sourceGoogleJson = path.join($projectData.appResourcesDirectoryPath, "Android", "google-services.json");
@@ -877,7 +889,7 @@ return new Promise(function(resolve, reject) {
                 $logger.warn("Unable to copy google-services.json.");
                 reject();
             }
-        } else if (hookArgs.platform.toLowerCase() === 'ios') {
+        } else if (platform === 'ios') {
             // we have copied our GoogleService-Info.plist during before-checkForChanges hook, here we delete it to avoid changes in git
             var destinationGooglePlist = path.join($projectData.appResourcesDirectoryPath, "iOS", "GoogleService-Info.plist");
             var sourceGooglePlistProd = path.join($projectData.appResourcesDirectoryPath, "iOS", "GoogleService-Info.plist.prod");
@@ -922,16 +934,16 @@ return new Promise(function(resolve, reject) {
 var path = require("path");
 var fs = require("fs");
 
-module.exports = function($logger, $projectData, hookArgs) {
+module.exports = function($logger, hookArgs) {
     return new Promise(function(resolve, reject) {
 
         /* Decide whether to prepare for dev or prod environment */
 
-        var isReleaseBuild = hookArgs['checkForChangesOpts']['projectData']['$options']['argv']['release'] || false;
+        var isReleaseBuild = !!((hookArgs.checkForChangesOpts && hookArgs.checkForChangesOpts.projectChangesOptions) || hookArgs.prepareData).release;
         var validProdEnvs = ['prod','production'];
         var isProdEnv = false; // building with --env.prod or --env.production flag
 
-        var env = hookArgs['checkForChangesOpts']['projectData']['$options']['argv']['env'];
+        var env = ((hookArgs.checkForChangesOpts && hookArgs.checkForChangesOpts.projectData && hookArgs.checkForChangesOpts.projectData.$options && hookArgs.checkForChangesOpts.projectData.$options.argv) || hookArgs.prepareData).env;
         if (env) {
             Object.keys(env).forEach((key) => {
                 if (validProdEnvs.indexOf(key)>-1) { isProdEnv=true; }
@@ -945,9 +957,10 @@ module.exports = function($logger, $projectData, hookArgs) {
             for which environment {development|prod} the project was prepared. If needed, we delete the NS .nsprepareinfo
             file so we force a new prepare
         */
-        var platform = hookArgs['checkForChangesOpts']['platform'].toLowerCase(); // ios | android
-        var platformsDir = hookArgs['checkForChangesOpts']['projectData']['platformsDir'];
-        var appResourcesDirectoryPath = hookArgs['checkForChangesOpts']['projectData']['appResourcesDirectoryPath'];
+        var platform = (hookArgs.checkForChangesOpts || hookArgs.prepareData).platform.toLowerCase();
+        var projectData = (hookArgs.checkForChangesOpts && hookArgs.checkForChangesOpts.projectData) || hookArgs.projectData;
+        var platformsDir = projectData.platformsDir;
+        var appResourcesDirectoryPath = projectData.appResourcesDirectoryPath;
         var forcePrepare = true; // whether to force NS to run prepare, defaults to true
         var npfInfoPath = path.join(platformsDir, platform, ".pluginfirebaseinfo");
         var nsPrepareInfoPath = path.join(platformsDir, platform, ".nsprepareinfo");
