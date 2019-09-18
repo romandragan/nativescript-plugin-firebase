@@ -957,8 +957,8 @@ src[NONNUMERICIDENTIFIER] = '\\d*[a-zA-Z-][a-zA-Z0-9-]*';
 
 var MAINVERSION = R++;
 src[MAINVERSION] = '(' + src[NUMERICIDENTIFIER] + ')\\.' +
-                   '(' + src[NUMERICIDENTIFIER] + ')\\.' +
-                   '(' + src[NUMERICIDENTIFIER] + ')';
+                    '(' + src[NUMERICIDENTIFIER] + ')\\.' +
+                    '(' + src[NUMERICIDENTIFIER] + ')';
 
 var MAINVERSIONLOOSE = R++;
 src[MAINVERSIONLOOSE] = '(' + src[NUMERICIDENTIFIERLOOSE] + ')\\.' +
@@ -974,7 +974,7 @@ src[PRERELEASEIDENTIFIER] = '(?:' + src[NUMERICIDENTIFIER] +
 
 var PRERELEASEIDENTIFIERLOOSE = R++;
 src[PRERELEASEIDENTIFIERLOOSE] = '(?:' + src[NUMERICIDENTIFIERLOOSE] +
-                                 '|' + src[NONNUMERICIDENTIFIER] + ')';
+                                  '|' + src[NONNUMERICIDENTIFIER] + ')';
 
 
 // ## Pre-release Version
@@ -987,7 +987,7 @@ src[PRERELEASE] = '(?:-(' + src[PRERELEASEIDENTIFIER] +
 
 var PRERELEASELOOSE = R++;
 src[PRERELEASELOOSE] = '(?:-?(' + src[PRERELEASEIDENTIFIERLOOSE] +
-                       '(?:\\.' + src[PRERELEASEIDENTIFIERLOOSE] + ')*))';
+                        '(?:\\.' + src[PRERELEASEIDENTIFIERLOOSE] + ')*))';
 
 // ## Build Metadata Identifier
 // Any combination of digits, letters, or hyphens.
@@ -1001,7 +1001,7 @@ src[BUILDIDENTIFIER] = '[0-9A-Za-z-]+';
 
 var BUILD = R++;
 src[BUILD] = '(?:\\+(' + src[BUILDIDENTIFIER] +
-             '(?:\\.' + src[BUILDIDENTIFIER] + ')*))';
+              '(?:\\.' + src[BUILDIDENTIFIER] + ')*))';
 
 
 // ## Full Version String
@@ -1024,8 +1024,8 @@ src[FULL] = '^' + FULLPLAIN + '$';
 // also, 1.0.0alpha1 (prerelease without the hyphen) which is pretty
 // common in the npm registry.
 var LOOSEPLAIN = '[v=\\s]*' + src[MAINVERSIONLOOSE] +
-                 src[PRERELEASELOOSE] + '?' +
-                 src[BUILD] + '?';
+                  src[PRERELEASELOOSE] + '?' +
+                  src[BUILD] + '?';
 
 var LOOSE = R++;
 src[LOOSE] = '^' + LOOSEPLAIN + '$';
@@ -1043,11 +1043,11 @@ src[XRANGEIDENTIFIER] = src[NUMERICIDENTIFIER] + '|x|X|\\*';
 
 var XRANGEPLAIN = R++;
 src[XRANGEPLAIN] = '[v=\\s]*(' + src[XRANGEIDENTIFIER] + ')' +
-                   '(?:\\.(' + src[XRANGEIDENTIFIER] + ')' +
-                   '(?:\\.(' + src[XRANGEIDENTIFIER] + ')' +
-                   '(?:' + src[PRERELEASE] + ')?' +
-                   src[BUILD] + '?' +
-                   ')?)?';
+                    '(?:\\.(' + src[XRANGEIDENTIFIER] + ')' +
+                    '(?:\\.(' + src[XRANGEIDENTIFIER] + ')' +
+                    '(?:' + src[PRERELEASE] + ')?' +
+                    src[BUILD] + '?' +
+                    ')?)?';
 
 var XRANGEPLAINLOOSE = R++;
 src[XRANGEPLAINLOOSE] = '[v=\\s]*(' + src[XRANGEIDENTIFIERLOOSE] + ')' +
@@ -1125,9 +1125,9 @@ var comparatorTrimReplace = '$1$2$3';
 // later.
 var HYPHENRANGE = R++;
 src[HYPHENRANGE] = '^\\s*(' + src[XRANGEPLAIN] + ')' +
-                   '\\s+-\\s+' +
-                   '(' + src[XRANGEPLAIN] + ')' +
-                   '\\s*$';
+                    '\\s+-\\s+' +
+                    '(' + src[XRANGEPLAIN] + ')' +
+                    '\\s*$';
 
 var HYPHENRANGELOOSE = R++;
 src[HYPHENRANGELOOSE] = '^\\s*(' + src[XRANGEPLAINLOOSE] + ')' +
@@ -1271,8 +1271,8 @@ SemVer.prototype.compareMain = function(other) {
     other = new SemVer(other, this.options);
 
   return compareIdentifiers(this.major, other.major) ||
-         compareIdentifiers(this.minor, other.minor) ||
-         compareIdentifiers(this.patch, other.patch);
+          compareIdentifiers(this.minor, other.minor) ||
+          compareIdentifiers(this.patch, other.patch);
 };
 
 SemVer.prototype.comparePre = function(other) {
@@ -1457,10 +1457,10 @@ function compareIdentifiers(a, b) {
   }
 
   return (anum && !bnum) ? -1 :
-         (bnum && !anum) ? 1 :
-         a < b ? -1 :
-         a > b ? 1 :
-         0;
+          (bnum && !anum) ? 1 :
+          a < b ? -1 :
+          a > b ? 1 :
+          0;
 }
 
 exports.rcompareIdentifiers = rcompareIdentifiers;
@@ -2004,8 +2004,8 @@ function replaceStars(comp, options) {
 // 1.2.3 - 3.4 => >=1.2.0 <3.5.0 Any 3.4.x will do
 // 1.2 - 3.4 => >=1.2.0 <3.5.0
 function hyphenReplace($0,
-                       from, fM, fm, fp, fpr, fb,
-                       to, tM, tm, tp, tpr, tb) {
+                        from, fM, fm, fp, fpr, fb,
+                        to, tM, tm, tp, tpr, tb) {
 
   if (isX(fM))
     from = '';
@@ -4563,9 +4563,11 @@ pod 'Firebase/Core', '~> ` + (supportsIOSModernBuildSystem ? '6.6.0' : '5.15.0')
 
 # Remote Config
 ` + (isSelected(result.remote_config) ? `` : `#`) + `pod 'Firebase/RemoteConfig'
+` + (isSelected(result.remote_config) ? `` : `#`) + `pod 'FirebaseABTesting', '= 3.0'
 
 # Performance Monitoring
 ` + (isSelected(result.performance_monitoring) ? `` : `#`) + `pod 'Firebase/Performance'
+` + (isSelected(result.performance_monitoring) ? `` : `#`) + `pod 'FirebaseABTesting', '= 3.0'
 
 # Crashlytics
 ` + (isSelected(result.crashlytics) ? `` : `#`) + `pod 'Fabric'
