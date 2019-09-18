@@ -630,9 +630,10 @@ function toLoginResult(user, additionalUserInfo?: FIRAdditionalUserInfo): User {
       if (pid === 'facebook.com' && typeof (FBSDKAccessToken) !== "undefined") { // FIRFacebookAuthProviderID
         providers.push({id: pid, token: FBSDKAccessToken.currentAccessToken ? FBSDKAccessToken.currentAccessToken.tokenString : null});
       } else if (pid === 'google.com' && typeof (GIDSignIn) !== "undefined" && GIDSignIn.sharedInstance() && GIDSignIn.sharedInstance().currentUser) {
-        // include web compatible oauth2 token
-        const gidCurrentAccessToken = GIDSignIn.sharedInstance().currentUser.authentication.accessToken;
-        providers.push({id: pid, token: gidCurrentAccessToken });
+        // include web compatible oauth2 token & refresh token
+        var gidUser = GIDSignIn.sharedInstance().currentUser;
+        var gidAuthentication = gidUser.authentication;
+        providers.push({ id: pid, token: gidAuthentication.accessToken, code: gidUser.serverAuthCode });
       } else {
         providers.push({id: pid});
       }
@@ -919,6 +920,10 @@ firebase.login = arg => {
         const sIn = GIDSignIn.sharedInstance();
         sIn.presentingViewController = arg.ios && arg.ios.controller ? arg.ios.controller : application.ios.rootController;
         sIn.clientID = FIRApp.defaultApp().options.clientID;
+
+        if (arg.googleOptions && arg.googleOptions.serverClientID) {
+          sIn.serverClientID = arg.googleOptions.serverClientID;
+        }
 
         if (arg.googleOptions && arg.googleOptions.hostedDomain) {
           sIn.hostedDomain = arg.googleOptions.hostedDomain;

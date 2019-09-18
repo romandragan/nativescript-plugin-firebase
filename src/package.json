@@ -1,6 +1,6 @@
 {
   "name": "nativescript-plugin-firebase-updated",
-  "version": "9.0.12",
+  "version": "9.0.14",
   "description": "Fire. Base. Firebase!",
   "main": "firebase",
   "typings": "index.d.ts",
