@@ -348,9 +348,11 @@ function writePodFile(result) {
 
 # Remote Config
 ` + (isSelected(result.remote_config) ? `` : `#`) + `pod 'Firebase/RemoteConfig'
+` + (isSelected(result.remote_config) ? `` : `#`) + `pod 'FirebaseABTesting', '= 3.0'
 
 # Performance Monitoring
 ` + (isSelected(result.performance_monitoring) ? `` : `#`) + `pod 'Firebase/Performance'
+` + (isSelected(result.performance_monitoring) ? `` : `#`) + `pod 'FirebaseABTesting', '= 3.0'
 
 # Crashlytics
 ` + (isSelected(result.crashlytics) ? `` : `#`) + `pod 'Fabric'

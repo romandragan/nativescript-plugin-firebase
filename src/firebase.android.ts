@@ -30,6 +30,7 @@ firebase._cachedDynamicLink = null;
 
 // we need to cache and restore the context, otherwise the next invocation is broken
 firebase._googleSignInIdToken = null;
+firebase._googleSignInServerAuthCode = null;
 firebase._facebookAccessToken = null;
 
 let fbCallbackManager = null;
@@ -783,7 +784,7 @@ function toLoginResult(user, additionalUserInfo?): User {
     if (pid === 'facebook.com') {
       providers.push({id: pid, token: firebase._facebookAccessToken});
     } else if (pid === 'google.com') {
-      providers.push({id: pid, token: firebase._googleSignInIdToken});
+      providers.push({id: pid, token: firebase._googleSignInIdToken, code: firebase._googleSignInServerAuthCode});
     } else {
       providers.push({id: pid});
     }
@@ -1072,6 +1073,7 @@ firebase.login = arg => {
         // Configure Google Sign In
         const googleSignInOptionsBuilder = new com.google.android.gms.auth.api.signin.GoogleSignInOptions.Builder(com.google.android.gms.auth.api.signin.GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(clientId)
+            .requestServerAuthCode(clientId)
             .requestEmail();
 
         if (arg.googleOptions && arg.googleOptions.hostedDomain) {
@@ -1110,6 +1112,7 @@ firebase.login = arg => {
             if (success) {
               const googleSignInAccount = googleSignInResult.getSignInAccount();
               firebase._googleSignInIdToken = googleSignInAccount.getIdToken();
+              firebase._googleSignInServerAuthCode = googleSignInAccount.getServerAuthCode();
               const accessToken = null;
               const authCredential = com.google.firebase.auth.GoogleAuthProvider.getCredential(firebase._googleSignInIdToken, accessToken);
 
