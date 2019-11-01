@@ -166,7 +166,7 @@ firebase.addAppDelegateMethods = appDelegate => {
                     if (!error) {
                       firebase.notifyAuthStateListeners({
                         loggedIn: true,
-                        user: toLoginResult(authData.user)
+                        user: toLoginResult(authData.user, authData.additionalUserInfo)
                       });
                     }
                   });
@@ -174,7 +174,7 @@ firebase.addAppDelegateMethods = appDelegate => {
                   // linking successful, so the user can now log in with either their email address, or however he logged in previously
                   firebase.notifyAuthStateListeners({
                     loggedIn: true,
-                    user: toLoginResult(result.user)
+                    user: toLoginResult(result.user, result.additionalUserInfo)
                   });
                 }
               };
@@ -188,7 +188,7 @@ firebase.addAppDelegateMethods = appDelegate => {
                 } else {
                   firebase.notifyAuthStateListeners({
                     loggedIn: true,
-                    user: toLoginResult(authData.user)
+                    user: toLoginResult(authData.user, authData.additionalUserInfo)
                   });
                 }
               });
