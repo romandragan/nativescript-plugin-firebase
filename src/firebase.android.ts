@@ -975,7 +975,7 @@ firebase.login = arg => {
               if (firebase._verifyPhoneNumberInProgress) {
                 firebase._verifyPhoneNumberInProgress = false;
                 firebase.requestPhoneAuthVerificationCode(userResponse => {
-                  if (userResponse === undefined && this.reject) {
+                  if ((userResponse === undefined || userResponse === '') && this.reject) {
                     this.reject("Prompt was canceled");
                     return;
                   }
