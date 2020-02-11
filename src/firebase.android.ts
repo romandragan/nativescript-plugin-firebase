@@ -105,15 +105,13 @@ const dynamicLinkHandler = args => {
     if (messagingEnabled()) {
       firebaseMessaging.onAppModuleLaunchEvent(args);
     }
-
-    if (appModule.ios) {
-      dynamicLinkHandler(args);
-    }
   });
 
   if (appModule.android) {
     appModule.android.on(appModule.AndroidApplication.activityNewIntentEvent, (args: any) => {
-      dynamicLinkHandler({ android: args.intent });
+      setTimeout(() => {
+        dynamicLinkHandler({ android: args.intent });
+      }, 1000)
     });
   }
 
