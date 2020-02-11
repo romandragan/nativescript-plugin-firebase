@@ -3155,7 +3155,7 @@ function writePodFile(result) {
 // The MLVision pod requires a minimum of iOS 9, otherwise the build will fail
 (isPresent(result.ml_kit) ? `` : `#`) + `platform :ios, '9.0'
 
-` + (!isSelected(result.external_push_client_only) ? `` : `#`) + `pod 'Firebase/Core', '~>6.16.0'
+` + (!isSelected(result.external_push_client_only) ? `` : `#`) + `pod 'FirebaseCore', '~>6.6.2'
 
 # Analytics
 ` + (isSelected(result.analytics) || (!isSelected(result.external_push_client_only) && !isPresent(result.analytics)) ? `` : `#`) + `pod 'Firebase/Analytics'
@@ -3171,11 +3171,11 @@ function writePodFile(result) {
 
 # Remote Config
 ` + (isSelected(result.remote_config) ? `` : `#`) + `pod 'Firebase/RemoteConfig'
-` + (isSelected(result.remote_config) ? `` : `#`) + `pod 'FirebaseABTesting', '= 3.0'
+` + (isSelected(result.remote_config) ? `` : `#`) + `pod 'FirebaseABTesting'
 
 # Performance Monitoring
 ` + (isSelected(result.performance_monitoring) ? `` : `#`) + `pod 'Firebase/Performance'
-` + (isSelected(result.performance_monitoring) ? `` : `#`) + `pod 'FirebaseABTesting', '= 3.0'
+` + (isSelected(result.performance_monitoring) ? `` : `#`) + `pod 'FirebaseABTesting'
 
 # Crashlytics
 ` + (isSelected(result.crashlytics) ? `` : `#`) + `pod 'Fabric'
