@@ -171,7 +171,7 @@ firebase.addAppDelegateMethods = appDelegate => {
                     if (!error) {
                       firebase.notifyAuthStateListeners({
                         loggedIn: true,
-                        user: toLoginResult(authData.user)
+                        user: toLoginResult(authData.user, authData.additionalUserInfo)
                       });
                     }
                   });
@@ -179,7 +179,7 @@ firebase.addAppDelegateMethods = appDelegate => {
                   // linking successful, so the user can now log in with either their email address, or however he logged in previously
                   firebase.notifyAuthStateListeners({
                     loggedIn: true,
-                    user: toLoginResult(result.user)
+                    user: toLoginResult(result.user, result.additionalUserInfo)
                   });
                 }
               };
@@ -193,7 +193,7 @@ firebase.addAppDelegateMethods = appDelegate => {
                 } else {
                   firebase.notifyAuthStateListeners({
                     loggedIn: true,
-                    user: toLoginResult(authData.user)
+                    user: toLoginResult(authData.user, authData.additionalUserInfo)
                   });
                 }
               });
@@ -634,10 +634,11 @@ function toLoginResult(user, additionalUserInfo?: FIRAdditionalUserInfo): User {
       // the app may have dropped Facebook support, so check if the native class is still there
       if (pid === "facebook.com" && typeof (FBSDKAccessToken) !== "undefined") { // FIRFacebookAuthProviderID
         providers.push({id: pid, token: FBSDKAccessToken.currentAccessToken ? FBSDKAccessToken.currentAccessToken.tokenString : null});
-      } else if (pid === "google.com" && typeof (GIDSignIn) !== "undefined" && GIDSignIn.sharedInstance() && GIDSignIn.sharedInstance().currentUser) {
-        // include web compatible oauth2 token
-        const gidCurrentIdToken = GIDSignIn.sharedInstance().currentUser.authentication.idToken;
-        providers.push({id: pid, token: gidCurrentIdToken});
+      } else if (pid === 'google.com' && typeof (GIDSignIn) !== "undefined" && GIDSignIn.sharedInstance() && GIDSignIn.sharedInstance().currentUser) {
+        // include web compatible oauth2 token & refresh token
+        var gidUser = GIDSignIn.sharedInstance().currentUser;
+        var gidAuthentication = gidUser.authentication;
+        providers.push({ id: pid, token: gidAuthentication.idToken, code: gidUser.serverAuthCode });
       } else if (pid === "apple.com") {
         // TODO
       } else {
@@ -827,7 +828,7 @@ firebase.login = arg => {
           }
 
           firebase.requestPhoneAuthVerificationCode(userResponse => {
-            if (userResponse === undefined) {
+            if (userResponse === undefined || userResponse === '') {
               reject("Prompt was canceled");
               return;
             }
@@ -965,6 +966,10 @@ firebase.login = arg => {
         const sIn = GIDSignIn.sharedInstance();
         sIn.presentingViewController = arg.ios && arg.ios.controller ? arg.ios.controller : application.ios.rootController;
         sIn.clientID = FIRApp.defaultApp().options.clientID;
+
+        if (arg.googleOptions && arg.googleOptions.serverClientID) {
+          sIn.serverClientID = arg.googleOptions.serverClientID;
+        }
 
         if (arg.googleOptions && arg.googleOptions.hostedDomain) {
           sIn.hostedDomain = arg.googleOptions.hostedDomain;
