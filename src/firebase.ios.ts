@@ -128,6 +128,34 @@ firebase.addAppDelegateMethods = appDelegate => {
       }
 
       if (typeof (FIRDynamicLink) !== "undefined") {
+
+        const absoluteString = url.absoluteString
+
+        if (absoluteString.includes(firebase.dynamicLinksCustomScheme)) {
+          result = FIRDynamicLinks.dynamicLinks().handleUniversalLinkCompletion(
+            NSURL.URLWithString(absoluteString.replace(firebase.dynamicLinksCustomScheme, 'https://')),
+            (dynamicLink, error) => {
+              if (dynamicLink !== null && dynamicLink.url !== null) {
+                if (firebase._dynamicLinkCallback) {
+                  firebase._dynamicLinkCallback({
+                    url: dynamicLink.url.absoluteString,
+                    // matchConfidence: dynamicLink.matchConfidence,
+                    minimumAppVersion: dynamicLink.minimumAppVersion
+                  });
+                } else {
+                  firebase._cachedDynamicLink = {
+                    url: dynamicLink.url.absoluteString,
+                    // matchConfidence: dynamicLink.matchConfidence,
+                    minimumAppVersion: dynamicLink.minimumAppVersion
+                  };
+                }
+              }
+            }
+          );
+
+          return result;
+        }
+
         const dynamicLinks: FIRDynamicLinks = FIRDynamicLinks.dynamicLinks();
         const dynamicLink: FIRDynamicLink = dynamicLinks.dynamicLinkFromCustomSchemeURL(url);
         if (dynamicLink && dynamicLink.url !== null) {
@@ -327,6 +355,8 @@ firebase.init = arg => {
 
       arg = arg || {};
       initializeArguments = arg;
+
+      firebase.dynamicLinksCustomScheme = arg.dynamicLinksCustomScheme;
 
       // if deeplinks are used, then for this scheme to work the use must have added the bundle as a scheme to their plist (this is in our docs)
       if (FIROptions && FIROptions.defaultOptions() !== null) {

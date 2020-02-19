@@ -93,6 +93,13 @@ const dynamicLinkHandler = args => {
           }
         }
       });
+
+      if (emailLink.includes(firebase.dynamicLinksCustomScheme)) {
+        args.android.setData(
+          android.net.Uri.parse(emailLink.replace(firebase.dynamicLinksCustomScheme, 'https://'))
+        );
+      }
+
       const firebaseDynamicLinks = com.google.firebase.dynamiclinks.FirebaseDynamicLinks.getInstance();
       firebaseDynamicLinks.getDynamicLink(args.android).addOnSuccessListener(getDynamicLinksCallback);
     }
@@ -310,6 +317,8 @@ firebase.init = arg => {
     const runInit = () => {
       arg = arg || {};
       initializeArguments = arg;
+
+      firebase.dynamicLinksCustomScheme = arg.dynamicLinksCustomScheme;
 
       if (typeof (com.google.firebase.analytics) !== "undefined" && typeof (com.google.firebase.analytics.FirebaseAnalytics) !== "undefined") {
         com.google.firebase.analytics.FirebaseAnalytics.getInstance(
