@@ -795,9 +795,11 @@ firebase.login = arg => {
           // link credential, note that you only want to do this if this user doesn't already use fb as an auth provider
           const onCompletionLink = (authData: FIRAuthDataResult, error: NSError) => {
             if (error) {
+              reject(error.localizedDescription);
+              return;
               // ignore, as this one was probably already linked, so just return the user
-              log("--- linking error: " + error.localizedDescription);
-              fAuth.signInWithCredentialCompletion(fIRAuthCredential, onCompletionWithAuthResult);
+              // log("--- linking error: " + error.localizedDescription);
+              // fAuth.signInWithCredentialCompletion(fIRAuthCredential, onCompletionWithAuthResult);
             } else {
               onCompletionWithAuthResult(authData, error);
             }
@@ -866,8 +868,10 @@ firebase.login = arg => {
             if (fAuth.currentUser) {
               const onCompletionLink = (authData: FIRAuthDataResult, error: NSError) => {
                 if (error) {
+                  reject(error.localizedDescription);
+                  return;
                   // ignore, as this one was probably already linked, so just return the user
-                  fAuth.signInWithCredentialCompletion(fIRAuthCredential, onCompletionWithAuthResult);
+                  // fAuth.signInWithCredentialCompletion(fIRAuthCredential, onCompletionWithAuthResult);
                 } else {
                   onCompletionWithAuthResult(authData, error);
                 }
@@ -919,9 +923,11 @@ firebase.login = arg => {
               // link credential, note that you only want to do this if this user doesn't already use fb as an auth provider
               const onCompletionLink = (authData: FIRAuthDataResult, error: NSError) => {
                 if (error) {
+                  reject(error.localizedDescription);
+                  return;
                   // ignore, as this one was probably already linked, so just return the user
-                  log("--- linking error: " + error.localizedDescription);
-                  fAuth.signInWithCredentialCompletion(fIRAuthCredential, onCompletionWithAuthResult);
+                  // log("--- linking error: " + error.localizedDescription);
+                  // fAuth.signInWithCredentialCompletion(fIRAuthCredential, onCompletionWithAuthResult);
                 } else {
                   onCompletionWithAuthResult(authData);
                 }
@@ -1020,8 +1026,10 @@ firebase.login = arg => {
               // link credential, note that you only want to do this if this user doesn't already use Google as an auth provider
               const onCompletionLink = (user, error) => {
                 if (error) {
+                  reject(error.localizedDescription);
+                  return;
                   // ignore, as this one was probably already linked, so just return the user
-                  fAuth.signInWithCredentialCompletion(fIRAuthCredential, onCompletionWithAuthResult);
+                  // fAuth.signInWithCredentialCompletion(fIRAuthCredential, onCompletionWithAuthResult);
                 } else {
                   onCompletionWithAuthResult(user);
                 }
