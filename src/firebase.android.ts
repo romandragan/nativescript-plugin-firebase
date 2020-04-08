@@ -46,6 +46,7 @@ const dynamicLinkHandler = args => {
   if (dynamicLinksEnabled()) {
     // let's see if this is part of an email-link authentication flow
     const emailLink = "" + args.android.getData();
+    alert('emailLink:' + emailLink);
     if (authEnabled() && com.google.firebase.auth.FirebaseAuth.getInstance().isSignInWithEmailLink(emailLink)) {
       const rememberedEmail = firebase.getRememberedEmailForEmailLinkLogin();
       if (rememberedEmail !== undefined) {
