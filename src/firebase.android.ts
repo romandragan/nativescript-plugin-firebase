@@ -46,7 +46,6 @@ const dynamicLinkHandler = args => {
   if (dynamicLinksEnabled()) {
     // let's see if this is part of an email-link authentication flow
     const emailLink = "" + args.android.getData();
-    alert('emailLink:' + emailLink);
     if (authEnabled() && com.google.firebase.auth.FirebaseAuth.getInstance().isSignInWithEmailLink(emailLink)) {
       const rememberedEmail = firebase.getRememberedEmailForEmailLinkLogin();
       if (rememberedEmail !== undefined) {
@@ -58,6 +57,15 @@ const dynamicLinkHandler = args => {
                 loggedIn: true,
                 user: toLoginResult(authResult.getUser(), authResult.getAdditionalUserInfo())
               });
+            } else {
+              if (firebase._emailLinkErrorCallback) {
+                firebase._emailLinkErrorCallback(
+                  "Logging in the user failed. " +
+                  (task.getException() && task.getException().getReason
+                    ? task.getException().getReason()
+                    : task.getException())
+                );
+              }
             }
           }
         });
@@ -462,6 +470,10 @@ firebase.unsubscribeFromTopic = firebaseMessaging.unsubscribeFromTopic;
 firebase.areNotificationsEnabled = firebaseMessaging.areNotificationsEnabled;
 
 firebase.functions = firebaseFunctions;
+
+firebase.addOnEmailLinkError = callback => {
+  firebase._emailLinkErrorCallback = callback;
+};
 
 firebase.addOnDynamicLinkReceivedCallback = callback => {
   return new Promise((resolve, reject) => {

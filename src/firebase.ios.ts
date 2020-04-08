@@ -194,15 +194,19 @@ firebase.addAppDelegateMethods = appDelegate => {
             if (fAuth.currentUser) {
               const onCompletionLink = (result: FIRAuthDataResult, error: NSError) => {
                 if (error) {
-                  // ignore, and complete the email link sign in flow
-                  fAuth.signInWithEmailLinkCompletion(rememberedEmail, userActivity.webpageURL.absoluteString, (authData: FIRAuthDataResult, error: NSError) => {
-                    if (!error) {
-                      firebase.notifyAuthStateListeners({
-                        loggedIn: true,
-                        user: toLoginResult(authData.user, authData.additionalUserInfo)
-                      });
-                    }
-                  });
+                  if (firebase._emailLinkErrorCallback) {
+                    firebase._emailLinkErrorCallback(error.localizedDescription);
+                  } else {
+                    // ignore, and complete the email link sign in flow
+                    fAuth.signInWithEmailLinkCompletion(rememberedEmail, userActivity.webpageURL.absoluteString, (authData: FIRAuthDataResult, error: NSError) => {
+                      if (!error) {
+                        firebase.notifyAuthStateListeners({
+                          loggedIn: true,
+                          user: toLoginResult(authData.user, authData.additionalUserInfo)
+                        });
+                      }
+                    });
+                  }
                 } else {
                   // linking successful, so the user can now log in with either their email address, or however he logged in previously
                   firebase.notifyAuthStateListeners({
@@ -279,6 +283,10 @@ firebase.fetchSignInMethodsForEmail = email => {
       reject(ex);
     }
   });
+};
+
+firebase.addOnEmailLinkError = callback => {
+  firebase._emailLinkErrorCallback = callback;
 };
 
 firebase.addOnDynamicLinkReceivedCallback = callback => {
