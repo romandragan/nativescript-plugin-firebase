@@ -1029,8 +1029,23 @@ firebase.login = arg => {
             firebase._gIDAuthentication = user.authentication;
             const fIRAuthCredential = FIRGoogleAuthProvider.credentialWithIDTokenAccessToken(firebase._gIDAuthentication.idToken, firebase._gIDAuthentication.accessToken);
 
-            // Finally, authenticate with Firebase using the credential
+            let googleAlreadyLinked = false
+
             if (fAuth.currentUser) {
+              for (var i = 0, l = fAuth.currentUser.providerData.count; i < l; i++) {
+                const firUserInfo: any = fAuth.currentUser.providerData.objectAtIndex(i);
+                const pid = firUserInfo.valueForKey('providerID');
+
+                if (pid === 'google.com') {
+                  googleAlreadyLinked = true
+
+                  break
+                }
+              }
+            }
+
+            // Finally, authenticate with Firebase using the credential
+            if (fAuth.currentUser && !googleAlreadyLinked) {
               // link credential, note that you only want to do this if this user doesn't already use Google as an auth provider
               const onCompletionLink = (user, error) => {
                 if (error) {
