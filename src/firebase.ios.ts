@@ -96,7 +96,7 @@ firebase.addAppDelegateMethods = appDelegate => {
 
       if (typeof (FIRDynamicLink) !== "undefined") {
         const dynamicLink: FIRDynamicLink = FIRDynamicLinks.dynamicLinks().dynamicLinkFromCustomSchemeURL(url);
-        if (dynamicLink) {
+        if (dynamicLink && dynamicLink.url) {
           console.log("Dynamic link from " + sourceApplication + ", URL: " + dynamicLink.url.absoluteString);
           firebase._cachedDynamicLink = {
             url: dynamicLink.url.absoluteString,
